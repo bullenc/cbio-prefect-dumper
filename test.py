@@ -24,18 +24,21 @@ def create_dump(
         dump_file = os.path.join(output_dir, f"{database}_full_{timestamp}.sql")
         tables = ""
 
+    # command = [
+    #     "mysqldump",
+    #     f"--host={host}",
+    #     f"--port={port}",
+    #     f"--user={user}",
+    #     "--skip-lock-tables",
+    #     "--column-statistics=0",
+    #     database,
+    # ]
     command = [
-        "mysqldump",
-        f"--host={host}",
-        f"--port={port}",
-        f"--user={user}",
-        "--skip-lock-tables",
-        "--column-statistics=0",
-        database,
+        "mysqldump --version",
     ]
 
-    if tables:
-        command.append(tables)
+    # if tables:
+    #     command.append(tables)
 
     try:
         with open(dump_file, "w") as f:
