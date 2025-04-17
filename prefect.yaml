@@ -11,7 +11,7 @@ pull:
 
     
 - prefect.deployments.steps.run_shell_script:
-    script: apt-get install -y mysql-client
+    script: apt-get install -y mariadb-client
     stream_output: true
 
 - prefect.deployments.steps.pip_install_requirements:
