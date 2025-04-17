@@ -45,6 +45,6 @@ deployments:
           stream_output: False
 
     work_pool:
-      name: fnl-worker
+      name: fnl-bento-8gb-prefect-2.20.3-python3.9
       work_queue_name: null
       job_variables: {}
