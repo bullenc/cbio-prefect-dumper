@@ -43,7 +43,6 @@ def create_dump(
         f"--host={host}",
         f"--port={port}",
         f"--user={user}",
-        f"--password={password}",
         "--skip-lock-tables",
         database,
     ]
