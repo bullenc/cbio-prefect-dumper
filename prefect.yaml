@@ -1,0 +1,50 @@
+name: Prefect-Demo-Workflow
+prefect-version: 2.14.19
+
+build: null
+push: null
+
+pull:
+  - prefect.projects.steps.git_clone_project:
+      id: clone-step
+      repository: https://github.com/CBIIT/Prefect_demo.git
+      branch: main
+
+  - prefect.projects.steps.shell_run_command:
+      command: |
+        apt-get update && apt-get install -y mysql-client
+
+  - prefect.projects.steps.pip_install_requirements:
+      requirements_file: requirements.txt
+      directory: "{{ clone-step.directory }}"
+      stream_output: False
+
+deployments:
+  - name: rfam-mysql-dump
+    version: null
+    tags: ["mysql", "rfam"]
+    description: "Dumps the family table or entire Rfam DB using mysqldump"
+    entrypoint: main.py:rfam_dump_flow
+    schedule: null
+
+    parameters: {}
+
+    pull:
+      - prefect.projects.steps.git_clone_project:
+          id: clone-step
+          repository: https://github.com/CBIIT/Prefect_demo.git
+          branch: main
+
+      - prefect.projects.steps.shell_run_command:
+          command: |
+            apt-get update && apt-get install -y mysql-client
+
+      - prefect.projects.steps.pip_install_requirements:
+          requirements_file: requirements.txt
+          directory: "{{ clone-step.directory }}"
+          stream_output: False
+
+    work_pool:
+      name: fnl-worker
+      work_queue_name: null
+      job_variables: {}
