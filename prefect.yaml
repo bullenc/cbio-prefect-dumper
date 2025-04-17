@@ -11,10 +11,10 @@ pull:
       branch: main
 
   - prefect.deployments.steps.run_shell_script:
-      script: |
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update
-        apt-get install -y mariadb-client
+      script: apt-get update
+      stream_output: true
+  - prefect.deployments.steps.run_shell_script:
+      script: apt-get install -y mariadb-client
       stream_output: true
 
   - prefect.deployments.steps.pip_install_requirements:
