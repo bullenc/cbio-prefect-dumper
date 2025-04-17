@@ -50,6 +50,8 @@ def create_dump(
                     process.returncode, command, process.stderr
                 )
         print(f"✅ Dump successful: {dump_file}")
+        output = subprocess.check_output(["mysqldump", "--version"]).decode().strip()
+        print(f"mysqldump version: {output}")
     except Exception as err:
         print(f"❌ mysqldump failed: {err}")
         raise
