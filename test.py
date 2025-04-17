@@ -30,6 +30,8 @@ def create_dump(
         f"--port={port}",
         f"--user={user}",
         f"--password={password}",
+        "--single-transaction",  # ✅ add this
+        "--skip-lock-tables",  # ✅ optional, reinforces the same thing
         "--databases",
         database,
     ]
