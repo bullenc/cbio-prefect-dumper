@@ -30,7 +30,7 @@ deployments:
   - mysql
   - rfam
   description: Dumps the family table or entire Rfam DB using mysqldump
-  entrypoint: main.py:rfam_dump_flow
+  entrypoint: test.py:rfam_dump_flow
   parameters: {}
   work_pool:
     name: fnl-bento-8gb-prefect-2.20.3-python3.9

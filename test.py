@@ -2,23 +2,9 @@ import os
 import subprocess
 import mysql.connector
 from datetime import datetime
-from prefect import flow, task
+from prefect import flow
 
 
-@task(name="test_db_connection", log_prints=True)
-def test_db_connection(host, user, password, database, port=3306):
-    try:
-        conn = mysql.connector.connect(
-            host=host, user=user, password=password, database=database, port=port
-        )
-        print("✅ Connected to the database.")
-        conn.close()
-    except mysql.connector.Error as err:
-        print(f"❌ Connection failed: {err}")
-        raise
-
-
-@task(name="create_dump", log_prints=True)
 def create_dump(
     host,
     user,
@@ -65,3 +51,28 @@ def create_dump(
     except Exception as err:
         print(f"❌ mysqldump failed: {err}")
         raise
+
+
+# @flow(name="rfam-dump-flow-test", log_prints=True)
+def rfam_dump_flow():
+    DB_CONFIG = {
+        "host": "mysql-rfam-public.ebi.ac.uk",
+        "user": "rfamro",
+        "password": "",
+        "database": "Rfam",
+        "port": 4497,
+    }
+
+    create_dump(**DB_CONFIG, dump_family_only=True)
+
+
+if __name__ == "__main__":
+    DB_CONFIG = {
+        "host": "mysql-rfam-public.ebi.ac.uk",
+        "user": "rfamro",
+        "password": "",
+        "database": "Rfam",
+        "port": 4497,
+    }
+
+    create_dump(**DB_CONFIG, dump_family_only=True)
