@@ -61,7 +61,7 @@ def test_dump_flow():
         "port": 3306,
     }
 
-    create_dump(**DB_CONFIG, dump_family_only=True)
+    create_dump(**DB_CONFIG)
 
 
 if __name__ == "__main__":
@@ -73,4 +73,4 @@ if __name__ == "__main__":
         "port": 3306,
     }
 
-    create_dump(**DB_CONFIG, dump_family_only=True)
+    create_dump(**DB_CONFIG)
