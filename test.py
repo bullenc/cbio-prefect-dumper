@@ -53,7 +53,7 @@ def create_dump(
         raise
 
 
-# @flow(name="rfam-dump-flow-test", log_prints=True)
+@flow(name="rfam-dump-flow-test", log_prints=True)
 def rfam_dump_flow():
     DB_CONFIG = {
         "host": "mysql-rfam-public.ebi.ac.uk",
