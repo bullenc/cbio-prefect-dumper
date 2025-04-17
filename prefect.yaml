@@ -9,9 +9,10 @@ pull:
     id: clone-step
     repository: https://github.com/akmukherjee/rfam-prefect-dumper.git
 
-- prefect.deployments.steps.shell_run_command:
-    command: |
-      apt-get update && apt-get install -y mysql-client
+    
+- prefect.deployments.steps.run_shell_script:
+    script: apt-get install -y mysql-client
+    stream_output: true
 
 - prefect.deployments.steps.pip_install_requirements:
     requirements_file: requirements.txt
