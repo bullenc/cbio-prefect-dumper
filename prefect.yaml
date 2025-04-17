@@ -9,12 +9,14 @@ pull:
       id: clone-step
       repository: https://github.com/akmukherjee/rfam-prefect-dumper.git
       branch: main
-      
+
   - prefect.deployments.steps.run_shell_script:
       script: |
+        export DEBIAN_FRONTEND=noninteractive
         apt-get update
-        DEBIAN_FRONTEND=noninteractive apt-get install -y mariadb-client
+        apt-get install -y mariadb-client
       stream_output: true
+
   - prefect.deployments.steps.pip_install_requirements:
       requirements_file: requirements.txt
       directory: '{{ clone-step.directory }}'
