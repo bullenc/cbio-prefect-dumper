@@ -60,11 +60,11 @@ def create_dump(
 @flow(name="rfam-dump-flow-test", log_prints=True)
 def rfam_dump_flow():
     DB_CONFIG = {
-        "host": "mysql-rfam-public.ebi.ac.uk",
-        "user": "rfamro",
-        "password": "",
-        "database": "Rfam",
-        "port": 4497,
+        "host": "relational.fel.cvut.cz",
+        "user": "guest",
+        "password": "ctu-relational",
+        "database": "Financial_std",
+        "port": 3306,
     }
 
     create_dump(**DB_CONFIG, dump_family_only=True)
