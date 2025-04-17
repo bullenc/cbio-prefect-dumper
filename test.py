@@ -33,9 +33,7 @@ def create_dump(
     #     "--column-statistics=0",
     #     database,
     # ]
-    command = [
-        "mysqldump --version",
-    ]
+    command = ["mysqldump", "--version"]
 
     # if tables:
     #     command.append(tables)
