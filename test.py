@@ -30,6 +30,7 @@ def create_dump(
         f"--port={port}",
         f"--user={user}",
         "--skip-lock-tables",
+        "--column-statistics=0",
         database,
     ]
 
