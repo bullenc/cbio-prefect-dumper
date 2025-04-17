@@ -32,6 +32,7 @@ def create_dump(
         "--skip-lock-tables",
         "--databases",
         database,
+        "--no-tablespaces",
     ]
 
     # if tables:
