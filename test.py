@@ -29,8 +29,9 @@ def create_dump(
         f"--host={host}",
         f"--port={port}",
         f"--user={user}",
-        f"--databases={database}",
         "--skip-lock-tables",
+        "--databases",
+        database,
     ]
 
     # if tables:
