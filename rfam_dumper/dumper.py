@@ -58,17 +58,3 @@ def create_dump(
     except subprocess.CalledProcessError as err:
         print(f"❌ mysqldump failed: {err}")
         raise
-
-
-@flow(name="rfam-dump-flow")
-def rfam_dump_flow():
-    DB_CONFIG = {
-        "host": "mysql-rfam-public.ebi.ac.uk",
-        "user": "rfamro",
-        "password": "",
-        "database": "Rfam",
-        "port": 4497,
-    }
-
-    test_db_connection(**DB_CONFIG)
-    create_dump(**DB_CONFIG, dump_family_only=True)
