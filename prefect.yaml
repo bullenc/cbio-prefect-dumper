@@ -7,8 +7,7 @@ push: null
 pull:
   - prefect.projects.steps.git_clone_project:
       id: clone-step
-      repository: https://github.com/CBIIT/Prefect_demo.git
-      branch: main
+      repository: https://github.com/akmukherjee/rfam-prefect-dumper.git
 
   - prefect.projects.steps.shell_run_command:
       command: |
@@ -28,21 +27,6 @@ deployments:
     schedule: null
 
     parameters: {}
-
-    pull:
-      - prefect.projects.steps.git_clone_project:
-          id: clone-step
-          repository: https://github.com/CBIIT/Prefect_demo.git
-          branch: main
-
-      - prefect.projects.steps.shell_run_command:
-          command: |
-            apt-get update && apt-get install -y mysql-client
-
-      - prefect.projects.steps.pip_install_requirements:
-          requirements_file: requirements.txt
-          directory: "{{ clone-step.directory }}"
-          stream_output: False
 
     work_pool:
       name: fnl-bento-8gb-prefect-2.20.3-python3.9
