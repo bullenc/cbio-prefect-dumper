@@ -5,19 +5,23 @@ build:
 push:
 
 pull:
-- prefect.deployments.steps.git_clone_project:
-    id: clone-step
-    repository: https://github.com/akmukherjee/rfam-prefect-dumper.git
+  - prefect.deployments.steps.git_clone_project:
+      id: clone-step
+      repository: https://github.com/akmukherjee/rfam-prefect-dumper.git
+      branch: main
 
-    
-- prefect.deployments.steps.run_shell_script:
-    script: apt-get install -y mariadb-client
-    stream_output: true
+  - prefect.deployments.steps.run_shell_script:
+      script: |
+        apt-get update && apt-get install -y software-properties-common
+        add-apt-repository ppa:ondrej/mysql-5.7
+        apt-get update && apt-get install -y mariadb-client
+      stream_output: true
 
-- prefect.deployments.steps.pip_install_requirements:
-    requirements_file: requirements.txt
-    directory: '{{ clone-step.directory }}'
-    stream_output: false
+  - prefect.deployments.steps.pip_install_requirements:
+      requirements_file: requirements.txt
+      directory: '{{ clone-step.directory }}'
+      stream_output: false
+
 
 deployments:
 - name: rfam-mysql-dump
