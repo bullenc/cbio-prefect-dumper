@@ -52,8 +52,16 @@ def create_dump(
 
     try:
         with open(dump_file, "w") as f:
-            subprocess.run(command, stdout=f, check=True)
+            process = subprocess.run(
+                command, stdout=f, stderr=subprocess.PIPE, check=False
+            )
+            if process.returncode != 0:
+                print(f"Error code: {process.returncode}")
+                print(f"Error message: {process.stderr.decode()}")
+                raise subprocess.CalledProcessError(
+                    process.returncode, command, process.stderr
+                )
         print(f"✅ Dump successful: {dump_file}")
-    except subprocess.CalledProcessError as err:
+    except Exception as err:
         print(f"❌ mysqldump failed: {err}")
         raise
