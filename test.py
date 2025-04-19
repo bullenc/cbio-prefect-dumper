@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 from prefect import flow
-import boto3
+import boto3, json
 from botocore.exceptions import ClientError
 
 
@@ -74,7 +74,7 @@ def create_dump(
 
 @flow(name="rfam-dump-flow-test", log_prints=True)
 def test_dump_flow(secret_name: str = "test/db/creds"):
-    creds = get_secret()
+    creds_string = get_secret()
     # print(f"creds: {creds}")
     DB_CONFIG = {
         "host": "relational.fel.cvut.cz",
@@ -84,7 +84,8 @@ def test_dump_flow(secret_name: str = "test/db/creds"):
         "port": 3306,
     }
     # print(f"DBCONIG: {DB_CONFIG}")
-    create_dump(creds)
+    creds = json.loads(creds_string)
+    create_dump(**creds)
 
 
 if __name__ == "__main__":
