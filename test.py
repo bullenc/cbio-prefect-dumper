@@ -83,8 +83,8 @@ def test_dump_flow(secret_name: str = "test/db/creds"):
         "database": "Financial_std",
         "port": 3306,
     }
-    print(f"DBCONIG: {DB_CONFIG}")
-    create_dump(**creds)
+    # print(f"DBCONIG: {DB_CONFIG}")
+    create_dump(creds)
 
 
 if __name__ == "__main__":
