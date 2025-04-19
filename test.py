@@ -75,7 +75,7 @@ def create_dump(
 @flow(name="rfam-dump-flow-test", log_prints=True)
 def test_dump_flow(secret_name: str = "test/db/creds"):
     creds = get_secret()
-    print(f"creds: {creds}")
+    # print(f"creds: {creds}")
     DB_CONFIG = {
         "host": "relational.fel.cvut.cz",
         "user": "guest",
@@ -84,7 +84,7 @@ def test_dump_flow(secret_name: str = "test/db/creds"):
         "port": 3306,
     }
     print(f"DBCONIG: {DB_CONFIG}")
-    create_dump(**DB_CONFIG)
+    create_dump(**creds)
 
 
 if __name__ == "__main__":
