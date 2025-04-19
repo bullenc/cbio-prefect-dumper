@@ -1,6 +1,5 @@
 import os
 import subprocess
-import mysql.connector
 from datetime import datetime
 from prefect import flow
 import boto3
