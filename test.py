@@ -3,6 +3,28 @@ import subprocess
 import mysql.connector
 from datetime import datetime
 from prefect import flow
+import boto3
+from botocore.exceptions import ClientError
+
+
+def get_secret():
+
+    secret_name = "test/db/creds"
+    region_name = "us-east-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(service_name="secretsmanager", region_name=region_name)
+
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    secret = get_secret_value_response["SecretString"]
+    return secret
 
 
 def create_dump(
@@ -52,7 +74,9 @@ def create_dump(
 
 
 @flow(name="rfam-dump-flow-test", log_prints=True)
-def test_dump_flow():
+def test_dump_flow(secret_name: str = "test/db/creds"):
+    creds = get_secret()
+    print(f"creds: {creds}")
     DB_CONFIG = {
         "host": "relational.fel.cvut.cz",
         "user": "guest",
@@ -60,7 +84,7 @@ def test_dump_flow():
         "database": "Financial_std",
         "port": 3306,
     }
-
+    print(f"DBCONIG: {DB_CONFIG}")
     create_dump(**DB_CONFIG)
 
 
