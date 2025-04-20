@@ -87,8 +87,8 @@ def test_dump_flow(
 
 def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
     s3 = boto3.client("s3", region_name=region_name)
-
-    s3_key = f"dump_folder/{file_path}"
+    file_name = file_path.split("/")[-1]
+    s3_key = f"dump_folder/{file_name}"
 
     try:
         s3.upload_file(file_path, bucket_name, s3_key)
