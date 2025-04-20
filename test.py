@@ -18,8 +18,6 @@ def get_secret():
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
         raise e
 
     secret = get_secret_value_response["SecretString"]
@@ -44,14 +42,11 @@ def create_dump(
         f"--port={port}",
         f"--user={user}",
         f"--password={password}",
-        "--single-transaction",  # ✅ add this
-        "--skip-lock-tables",  # ✅ optional, reinforces the same thing
+        "--single-transaction",
+        "--skip-lock-tables",
         "--databases",
         database,
     ]
-
-    # if tables:
-    #     command.append(tables)
 
     try:
         with open(dump_file, "w") as f:
@@ -65,15 +60,16 @@ def create_dump(
                     process.returncode, command, process.stderr
                 )
         print(f"✅ Dump successful: {dump_file}")
-        output = subprocess.check_output(["mysqldump", "--version"]).decode().strip()
-        print(f"mysqldump version: {output}")
+        return dump_file  # ← Return the dump file path
     except Exception as err:
         print(f"❌ mysqldump failed: {err}")
         raise
 
 
 @flow(name="rfam-dump-flow-test", log_prints=True)
-def test_dump_flow(secret_name: str = "test/db/creds"):
+def test_dump_flow(
+    secret_name: str = "test/db/creds", bucket_name: str = "fake_bucket"
+):
     creds_string = get_secret()
     # print(f"creds: {creds}")
     DB_CONFIG = {
@@ -85,16 +81,23 @@ def test_dump_flow(secret_name: str = "test/db/creds"):
     }
     # print(f"DBCONIG: {DB_CONFIG}")
     creds = json.loads(creds_string)
-    create_dump(**creds)
+    dump_file_path = create_dump(**creds)
+    upload_to_s3(dump_file_path, bucket_name)
+
+
+def upload_to_s3(file_path, bucket_name, s3_key="dump_folder", region_name="us-east-1"):
+    s3 = boto3.client("s3", region_name=region_name)
+
+    if not s3_key:
+        s3_key = os.path.basename(file_path)
+
+    try:
+        s3.upload_file(file_path, bucket_name, s3_key)
+        print(f"✅ Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
+    except ClientError as e:
+        print(f"❌ Failed to upload to S3: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    DB_CONFIG = {
-        "host": "relational.fel.cvut.cz",
-        "user": "guest",
-        "password": "ctu-relational",
-        "database": "Financial_std",
-        "port": 3306,
-    }
-
-    create_dump(**DB_CONFIG)
+    test_dump_flow()
