@@ -85,11 +85,10 @@ def test_dump_flow(
     upload_to_s3(dump_file_path, bucket_name)
 
 
-def upload_to_s3(file_path, bucket_name, s3_key="dump_folder", region_name="us-east-1"):
+def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
     s3 = boto3.client("s3", region_name=region_name)
 
-    if not s3_key:
-        s3_key = os.path.basename(file_path)
+    s3_key = f"dump_folder/{file_path}"
 
     try:
         s3.upload_file(file_path, bucket_name, s3_key)
