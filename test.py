@@ -1,7 +1,7 @@
 import os
+import subprocess
 from datetime import datetime
 from prefect import flow
-from prefect.tasks import shell
 import boto3, json
 from botocore.exceptions import ClientError
 
@@ -36,28 +36,29 @@ def create_dump(
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     dump_file = os.path.join(output_dir, f"{database}_dump_{timestamp}.sql")
 
-    command = (
-        f"mysqldump "
-        f"--host={host} "
-        f"--port={port} "
-        f"--user={user} "
-        f"--password={password} "
-        f"--single-transaction "
-        f"--skip-lock-tables "
-        f"--databases "
-        f"{database} "
-        f"> {dump_file}"
-    )
+    command = [
+        "mysqldump",
+        f"--host={host}",
+        f"--port={port}",
+        f"--user={user}",
+        f"--password={password}",
+        "--single-transaction",
+        "--skip-lock-tables",
+        "--databases",
+        database,
+    ]
 
     try:
-        shell_operation = shell.ShellOperation()
-        result = shell_operation.run(command=command, return_all=True)
-
-        if result.returncode != 0:
-            print(f"Error code: {result.returncode}")
-            print(f"Error message: {result.stderr}")
-            raise RuntimeError(f"mysqldump failed with error: {result.stderr}")
-
+        with open(dump_file, "w") as f:
+            process = subprocess.run(
+                command, stdout=f, stderr=subprocess.PIPE, check=False
+            )
+            if process.returncode != 0:
+                print(f"Error code: {process.returncode}")
+                print(f"Error message: {process.stderr.decode()}")
+                raise subprocess.CalledProcessError(
+                    process.returncode, command, process.stderr
+                )
         print(f"✅ Dump successful: {dump_file}")
         return dump_file
     except Exception as err:
