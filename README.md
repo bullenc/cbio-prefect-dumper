@@ -1,4 +1,4 @@
-# Rfam Database Dumper
+# Cbio Database Dumper
 
 A Prefect workflow that creates MySQL database dumps and uploads them to AWS S3.
 
