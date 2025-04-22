@@ -72,6 +72,3 @@ The workflow includes error handling for:
 - Uploaded files are stored in the S3 bucket under the `dump_folder/` prefix
 - Each dump file is named with the pattern: `{database}_dump_{timestamp}.sql`
 
-## License
-
-[Add your license information here] 
