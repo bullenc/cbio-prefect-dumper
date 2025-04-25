@@ -48,9 +48,9 @@ def get_secret(env_name: str):
 
 def create_dump(
     host: str,
-    user : str,
+    username : str,
     password : str,
-    database : str,
+    dbClusterIdentifier : str,
     port=3306,
     output_dir="/usr/local/data/dumps",
 ):
@@ -62,12 +62,12 @@ def create_dump(
         "mysqldump",
         f"--host={host}",
         f"--port={port}",
-        f"--user={user}",
+        f"--user={username}",
         f"--password={password}",
         "--single-transaction",
         "--skip-lock-tables",
         "--databases",
-        database,
+        dbClusterIdentifier,
     ]
 
     try:
