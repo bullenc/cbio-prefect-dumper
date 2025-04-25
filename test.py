@@ -48,15 +48,16 @@ def get_secret(env_name: str):
 
 def create_dump(
     host: str,
-    username : str,
-    password : str,
-    dbClusterIdentifier : str,
+    username: str,
+    password: str,
+    engine: str = "mysql",
+    dbClusterIdentifier: str = "",
     port=3306,
     output_dir="/usr/local/data/dumps",
 ):
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    dump_file = os.path.join(output_dir, f"{database}_dump_{timestamp}.sql")
+    dump_file = os.path.join(output_dir, f"{dbClusterIdentifier}_dump_{timestamp}.sql")
 
     command = [
         "mysqldump",
@@ -108,7 +109,7 @@ def test_dump_flow(
 
     Args:
         env_tier (str): Tier to perform export on (e.g., dev, prod)
-        bucket_name (str, optional): Bucket name to upload to. Defaults to "fake_bucket".
+        bucket_name (str, optional): Bucket name to upload to. Defaults to "dev".
     """
     
     # retrieve and load creds
