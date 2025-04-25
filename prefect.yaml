@@ -31,7 +31,7 @@ deployments:
   - TEST
   - V3
   description: Dumps the family table or entire cbioportal DB using mysqldump
-  entrypoint: workflows/cbio_db.py:export_db
+  entrypoint: workflows/export_db.py:export_db
   parameters:
     env_tier: "dev"
     bucket_name: "cbio-backup-dev"
