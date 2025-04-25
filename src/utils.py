@@ -1,9 +1,8 @@
-import os
 import subprocess
 from datetime import datetime
 from pytz import timezone
-from prefect import flow, task
-import boto3, json
+from prefect import task
+import boto3
 from botocore.exceptions import ClientError
 
 
@@ -135,32 +134,3 @@ def upload_to_s3(file_path : str, bucket_name: str, region_name="us-east-1"):
     except ClientError as e:
         print(f"❌ Failed to upload to S3: {e}")
         raise
-
-@flow(name="cbio-dump-flow-test", log_prints=True)
-def export_db(
-    env_tier: str, bucket_name: str
-):
-    """Execute database export and upload to S3.
-
-    Args:
-        env_tier (str): Tier to perform export on (e.g., dev, prod)
-        bucket_name (str, optional): Bucket name to upload to.
-    """
-    
-    # retrieve and load creds
-    creds_string = get_secret(env_tier)
-    creds = json.loads(creds_string)
-
-    #dump the database
-    dump_file_path = create_dump(**creds)
-
-    #upload the dump file to S3
-    upload_to_s3(dump_file_path, bucket_name)
-
-    #remove the dump file
-    os.remove(dump_file_path)
-    print(f"✅ Removed dump file: {dump_file_path}")
-
-
-if __name__ == "__main__":
-    export_db()
