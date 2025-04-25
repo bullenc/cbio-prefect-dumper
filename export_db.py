@@ -2,7 +2,7 @@ import os
 from prefect_shell import ShellOperation
 from datetime import datetime
 from pytz import timezone
-from prefect import flow
+from prefect import flow, task
 import boto3, json
 from botocore.exceptions import ClientError
 
@@ -14,6 +14,7 @@ def get_time() -> str:
     dt_string = now.strftime("%Y%m%d_T%H%M%S")
     return dt_string
 
+@task(name="get_secret")
 def get_secret(env_name: str):
     """Get the secret from AWS Secrets Manager.
 
@@ -45,7 +46,7 @@ def get_secret(env_name: str):
     secret = get_secret_value_response["SecretString"]
     return secret
 
-
+@task(name="create_dump")
 def create_dump(
     host: str,
     username: str,
@@ -84,22 +85,22 @@ def create_dump(
                 )"""
             result = ShellOperation(
                 commands=[
-                    " ".join(command)
+                    " ".join(command) + f" > {dump_file}"
                 ],
                 stream_output=False,
                 log_output=False,
-                ).run()
+            ).run()
             
             print(result)
-            #if result.get("exit_code", 0) != 0:
-            #    raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
+            if result.get("exit_code", 0) != 0:
+                raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
         print(f"✅ Dump successful: {dump_file}")
         return dump_file
     except Exception as err:
         print(f"❌ mysqldump failed: {err}")
         raise
 
-
+@task(name="upload_to_s3")
 def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
     s3 = boto3.client("s3", region_name=region_name)
     file_name = file_path.split("/")[-1]
