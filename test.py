@@ -117,8 +117,7 @@ def test_dump_flow(
 
     ##TESTING
     print("Testing credentials")
-    print(creds['host'])
-    print(creds['user'])
+    print(creds.keys())
 
     dump_file_path = create_dump(**creds)
     upload_to_s3(dump_file_path, bucket_name)
