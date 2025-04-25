@@ -11,8 +11,8 @@ def export_db(
     """Execute database export and upload to S3.
 
     Args:
-        env_tier (str): Tier to perform export on (e.g., dev, prod)
-        bucket_name (str, optional): Bucket name to upload to.
+        env_tier (str): Tier to perform export on (e.g., dev, qa, prod)
+        bucket_name (str, optional): Bucket name to upload to (e.g. cbio-backup-dev)
     """
     
     # retrieve and load creds
