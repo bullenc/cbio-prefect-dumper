@@ -1,5 +1,5 @@
 import os
-from prefect_shell import ShellOperation
+import subprocess
 from datetime import datetime
 from pytz import timezone
 from prefect import flow, task
@@ -74,7 +74,7 @@ def create_dump(
 
     try:
         with open(dump_file, "w") as f:
-            """process = subprocess.run(
+            process = subprocess.run(
                 command, stdout=f, stderr=subprocess.PIPE, check=False, shell=False
             )
             if process.returncode != 0:
@@ -82,18 +82,8 @@ def create_dump(
                 print(f"Error message: {process.stderr.decode()}")
                 raise subprocess.CalledProcessError(
                     process.returncode, command, process.stderr
-                )"""
-            result = ShellOperation(
-                commands=[
-                    " ".join(command) + f" > {dump_file}"
-                ],
-                stream_output=True,
-                log_output=False,
-            ).run()
-            
-            print(result)
-            if result.get("exit_code", 0) != 0:
-                raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
+                )
+
         print(f"✅ Dump successful: {dump_file}")
         return dump_file
     except Exception as err:
