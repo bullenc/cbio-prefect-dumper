@@ -1,5 +1,5 @@
 import os
-import subprocess
+from prefect_shell import ShellOperation
 from datetime import datetime
 from pytz import timezone
 from prefect import flow
@@ -56,7 +56,7 @@ def create_dump(
     output_dir="/usr/local/data/dumps",
 ):
     os.makedirs(output_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = get_time()
     dump_file = os.path.join(output_dir, f"{dbClusterIdentifier}_dump_{timestamp}.sql")
 
     command = [
@@ -73,7 +73,7 @@ def create_dump(
 
     try:
         with open(dump_file, "w") as f:
-            process = subprocess.run(
+            """process = subprocess.run(
                 command, stdout=f, stderr=subprocess.PIPE, check=False, shell=False
             )
             if process.returncode != 0:
@@ -81,7 +81,14 @@ def create_dump(
                 print(f"Error message: {process.stderr.decode()}")
                 raise subprocess.CalledProcessError(
                     process.returncode, command, process.stderr
-                )
+                )"""
+            result = ShellOperation(
+                commands=[
+                    command
+                ]).run()
+            
+            if result.get("exit_code", 0) != 0:
+                raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
         print(f"✅ Dump successful: {dump_file}")
         return dump_file
     except Exception as err:
@@ -102,7 +109,7 @@ def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
         raise
 
 @flow(name="cbio-dump-flow-test", log_prints=True)
-def test_dump_flow(
+def export_db(
     env_tier: str, bucket_name: str
 ):
     """Execute database export and upload to S3.
@@ -129,4 +136,4 @@ def test_dump_flow(
 
 
 if __name__ == "__main__":
-    test_dump_flow()
+    export_db()
