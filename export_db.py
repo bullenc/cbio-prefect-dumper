@@ -86,7 +86,7 @@ def create_dump(
                 commands=[
                     " ".join(command)
                 ],
-                stream_output=False
+                stream_output=False,
                 log_output=False,
                 ).run()
             
