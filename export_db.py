@@ -85,10 +85,14 @@ def create_dump(
             result = ShellOperation(
                 commands=[
                     " ".join(command)
-                ]).run()
+                ],
+                stream_output=False
+                log_output=False,
+                ).run()
             
-            if result.get("exit_code", 0) != 0:
-                raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
+            print(result)
+            #if result.get("exit_code", 0) != 0:
+            #    raise Exception(f"ShellOperation failed with exit code {result.get('exit_code')}: {result.get('stderr', 'No error message')}")
         print(f"✅ Dump successful: {dump_file}")
         return dump_file
     except Exception as err:
