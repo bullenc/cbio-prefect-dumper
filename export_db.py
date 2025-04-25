@@ -84,7 +84,7 @@ def create_dump(
                 )"""
             result = ShellOperation(
                 commands=[
-                    command
+                    " ".join(command)
                 ]).run()
             
             if result.get("exit_code", 0) != 0:
