@@ -23,6 +23,7 @@ def get_secret(env_name: str):
 
     Raises:
         e: ClientError
+        ValueError: If the environment name is invalid.
 
     Returns:
         dict: JSON object with credentials
@@ -32,6 +33,10 @@ def get_secret(env_name: str):
 
     if env_name == "dev":
         secret_name = "ccdicbio-dev-rds"
+    elif env_name == "qa":
+        secret_name = "ccdicbio-qa-rds"
+    else:
+        raise ValueError("Invalid environment name. Please use one of: ['dev', 'qa'].")
         
     # Create a Secrets Manager client
     session = boto3.session.Session()
