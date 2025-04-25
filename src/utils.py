@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, os
 from datetime import datetime
 from pytz import timezone
 from prefect import task

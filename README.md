@@ -1,6 +1,6 @@
-# Cbio Database Dumper
+# CCDI cBioPortal Database Actions
 
-A Prefect workflow that creates MySQL database dumps and uploads them to AWS S3.
+A set of Prefect workflows that can either create MySQL database dumps and upload them to AWS S3 or restore database dumps from S3 to another database. Restore actions are forthcoming. 
 
 ## Overview
 
@@ -40,12 +40,7 @@ The workflow requires the following:
 }
 ```
 
-## Usage
-
-Run the workflow using:
-```bash
-python test.py
-```
+## Overview
 
 The workflow will:
 1. Retrieve database credentials from AWS Secrets Manager
@@ -68,7 +63,8 @@ The workflow includes error handling for:
 
 ## Output
 
-- Database dumps are stored locally in the `./dumps` directory
+- Database dumps are stored to mounted  in the `./dumps` directory
 - Uploaded files are stored in the S3 bucket under the `dump_folder/` prefix
 - Each dump file is named with the pattern: `{database}_dump_{timestamp}.sql`
+- Database dump is then removed from local space
 
