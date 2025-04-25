@@ -51,11 +51,29 @@ def create_dump(
     host: str,
     username: str,
     password: str,
+    dbClusterIdentifier: str,
     engine: str = "mysql",
-    dbClusterIdentifier: str = "",
     port=3306,
     output_dir="/usr/local/data/dumps",
 ):
+    """Creates a dump of the database using mysqldump.
+
+    Args:
+        host (str): Host name of the database.
+        username (str): Username for the database.
+        password (str): Password for the database.
+        dbClusterIdentifier (str): Database name/cluster identifier.
+        engine (str, optional): Database engine. Defaults to "mysql".
+        port (int, optional): Port number of mysql database. Defaults to 3306.
+        output_dir (str, optional): Local path of output directory. Defaults to "/usr/local/data/dumps".
+
+    Raises:
+        subprocess.CalledProcessError: If the mysqldump command fails.
+
+    Returns:
+        str: Path to the dump file.
+    """
+
     os.makedirs(output_dir, exist_ok=True)
     timestamp = get_time()
     dump_file = os.path.join(output_dir, f"{dbClusterIdentifier}_dump_{timestamp}.sql")
@@ -91,7 +109,19 @@ def create_dump(
         raise
 
 @task(name="upload_to_s3")
-def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
+def upload_to_s3(file_path : str, bucket_name: str, region_name="us-east-1"):
+    """
+    Uploads a file to an S3 bucket.
+
+    Args:
+        file_path (str): Local path to the file to upload.
+        bucket_name (str): S3 bucket name.
+        region_name (str, optional): AWS region name. Defaults to "us-east-1".
+
+    Raises:
+        ClientError: If the upload fails.
+    """
+
     s3 = boto3.client("s3", region_name=region_name)
     file_name = file_path.split("/")[-1]
     s3_key = f"dump_folder/{file_name}"
@@ -111,14 +141,17 @@ def export_db(
 
     Args:
         env_tier (str): Tier to perform export on (e.g., dev, prod)
-        bucket_name (str, optional): Bucket name to upload to. Defaults to "dev".
+        bucket_name (str, optional): Bucket name to upload to.
     """
     
     # retrieve and load creds
     creds_string = get_secret(env_tier)
     creds = json.loads(creds_string)
 
+    #dump the database
     dump_file_path = create_dump(**creds)
+
+    #upload the dump file to S3
     upload_to_s3(dump_file_path, bucket_name)
 
     #remove the dump file
