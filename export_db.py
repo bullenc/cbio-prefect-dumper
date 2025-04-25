@@ -87,7 +87,7 @@ def create_dump(
                 commands=[
                     " ".join(command) + f" > {dump_file}"
                 ],
-                stream_output=False,
+                stream_output=True,
                 log_output=False,
             ).run()
             
@@ -127,10 +127,6 @@ def export_db(
     # retrieve and load creds
     creds_string = get_secret(env_tier)
     creds = json.loads(creds_string)
-
-    ##TESTING
-    print("Testing credentials")
-    print(creds.keys())
 
     dump_file_path = create_dump(**creds)
     upload_to_s3(dump_file_path, bucket_name)
