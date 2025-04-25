@@ -1,20 +1,42 @@
 import os
 import subprocess
 from datetime import datetime
+from pytz import timezone
 from prefect import flow
 import boto3, json
 from botocore.exceptions import ClientError
 
 
-def get_secret():
+def get_time() -> str:
+    """Returns the current time"""
+    tz = timezone("EST")
+    now = datetime.now(tz)
+    dt_string = now.strftime("%Y%m%d_T%H%M%S")
+    return dt_string
 
-    secret_name = "test/db/creds"
+def get_secret(env_name: str):
+    """Get the secret from AWS Secrets Manager.
+
+    Args:
+        env_name (str): Environment name (e.g., dev, prod)
+
+    Raises:
+        e: ClientError
+
+    Returns:
+        dict: JSON object with credentials
+    """
+
     region_name = "us-east-1"
 
+    if env_name == "dev":
+        secret_name = "ccdicbio-dev-rds"
+        
     # Create a Secrets Manager client
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
+    # retreive the secret
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
@@ -25,12 +47,12 @@ def get_secret():
 
 
 def create_dump(
-    host,
-    user,
-    password,
-    database,
+    host: str,
+    user : str,
+    password : str,
+    database : str,
     port=3306,
-    output_dir="./dumps",
+    output_dir="/usr/local/data/dumps",
 ):
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -51,7 +73,7 @@ def create_dump(
     try:
         with open(dump_file, "w") as f:
             process = subprocess.run(
-                command, stdout=f, stderr=subprocess.PIPE, check=False
+                command, stdout=f, stderr=subprocess.PIPE, check=False, shell=False
             )
             if process.returncode != 0:
                 print(f"Error code: {process.returncode}")
@@ -66,25 +88,6 @@ def create_dump(
         raise
 
 
-@flow(name="rfam-dump-flow-test", log_prints=True)
-def test_dump_flow(
-    secret_name: str = "test/db/creds", bucket_name: str = "fake_bucket"
-):
-    creds_string = get_secret()
-    # print(f"creds: {creds}")
-    DB_CONFIG = {
-        "host": "relational.fel.cvut.cz",
-        "user": "guest",
-        "password": "ctu-relational",
-        "database": "Financial_std",
-        "port": 3306,
-    }
-    # print(f"DBCONIG: {DB_CONFIG}")
-    creds = json.loads(creds_string)
-    dump_file_path = create_dump(**creds)
-    upload_to_s3(dump_file_path, bucket_name)
-
-
 def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
     s3 = boto3.client("s3", region_name=region_name)
     file_name = file_path.split("/")[-1]
@@ -96,6 +99,33 @@ def upload_to_s3(file_path, bucket_name, region_name="us-east-1"):
     except ClientError as e:
         print(f"❌ Failed to upload to S3: {e}")
         raise
+
+@flow(name="cbio-dump-flow-test", log_prints=True)
+def test_dump_flow(
+    env_tier: str, bucket_name: str
+):
+    """Execute database export and upload to S3.
+
+    Args:
+        env_tier (str): Tier to perform export on (e.g., dev, prod)
+        bucket_name (str, optional): Bucket name to upload to. Defaults to "fake_bucket".
+    """
+    
+    # retrieve and load creds
+    creds_string = get_secret(env_tier)
+    creds = json.loads(creds_string)
+
+    ##TESTING
+    print("Testing credentials")
+    print(creds['host'])
+    print(creds['user'])
+
+    dump_file_path = create_dump(**creds)
+    upload_to_s3(dump_file_path, bucket_name)
+
+    #remove the dump file
+    os.remove(dump_file_path)
+    print(f"✅ Removed dump file: {dump_file_path}")
 
 
 if __name__ == "__main__":
