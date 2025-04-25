@@ -7,7 +7,7 @@ push: null
 pull:
 - prefect.deployments.steps.git_clone:
     id: clone-step
-    repository: https://github.com/bullenca/cbio-prefect-dumper.git
+    repository: https://github.com/bullenc/cbio-prefect-dumper.git
     branch: main
 
 - prefect.deployments.steps.run_shell_script:
